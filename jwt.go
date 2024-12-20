@@ -401,6 +401,7 @@ func (jwtPlugin *JwtPlugin) FetchKeys() {
 	defer jwtPlugin.keysLock.Unlock()
 
 	for k, v := range fetchedKeys {
+		logInfo(fmt.Sprintf("Key fetched with kid %s", k)).print()
 		jwtPlugin.keys[k] = v
 	}
 }
@@ -512,15 +513,22 @@ func (jwtPlugin *JwtPlugin) ExtractToken(request *http.Request) (*JWT, error) {
 		switch sourcetype {
 		case "bearer":
 			jwtTokenStr, err = jwtPlugin.extractTokenFromBearer(request, sourcekey)
+			logInfo(fmt.Sprintf("bearer token %s", jwtTokenStr)).print()
 		case "header":
 			jwtTokenStr, err = jwtPlugin.extractTokenFromHeader(request, sourcekey)
+			logInfo(fmt.Sprintf("header token %s", jwtTokenStr)).print()
 		case "cookie":
 			jwtTokenStr, err = jwtPlugin.extractTokenFromCookie(request, sourcekey)
+			logInfo(fmt.Sprintf("cookie token %s", jwtTokenStr)).print()
 		case "query":
 			jwtTokenStr, err = jwtPlugin.extractTokenFromQuery(request, sourcekey)
+			logInfo(fmt.Sprintf("query token %s", jwtTokenStr)).print()
 		}
 		if err == nil && jwtTokenStr != "" {
 			break
+		}
+		if err != nil {
+			logInfo(fmt.Sprintf("errorgetting token: %s", err)).print()
 		}
 	}
 	if err != nil {
